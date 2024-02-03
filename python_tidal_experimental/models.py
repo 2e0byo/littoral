@@ -23,6 +23,7 @@ class TidalResource(BaseModel):
 class Artist(TidalResource):
     roles: list[Role]
     picture_uuid: str
+    popularity: int
 
     @classmethod
     def from_json(cls, json: dict) -> Self:

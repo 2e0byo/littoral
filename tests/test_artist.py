@@ -24,6 +24,7 @@ def test_artist_parsed_from_json():
         name="The Black Keys",
         roles=[Role.Artist, Role.Songwriter, Role.Producer, Role.Engineer],
         picture_uuid="0ed9f0cd-fce1-4894-baf4-d50c35fc7585",
+        popularity=65,
     )
 
 
