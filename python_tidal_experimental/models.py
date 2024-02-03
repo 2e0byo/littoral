@@ -15,9 +15,12 @@ class Role(Enum):
         return cls[json["category"]]
 
 
-class Artist(BaseModel):
+class TidalResource(BaseModel):
     id: NonNegativeInt
     name: str
+
+
+class Artist(TidalResource):
     roles: list[Role]
     picture_uuid: str
 
