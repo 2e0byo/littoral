@@ -1,9 +1,22 @@
+from datetime import date, timedelta
 from enum import Enum
 from typing import Annotated, Any, Callable, Self
 
-from pydantic import BaseModel, Field, NonNegativeInt, PrivateAttr
+from pydantic import BaseModel, ConfigDict, Field, NonNegativeInt, PrivateAttr
 
 Parser = Callable[[dict], Any]
+
+
+def from_camel(camel: str) -> str:
+    words = []
+    word_start = 0
+    for i, c in enumerate(camel):
+        if c.isupper():
+            words.append(camel[word_start:i].lower())
+            word_start = i
+
+    words.append(camel[word_start : i + 1].lower())
+    return "_".join(words)
 
 
 class Role(Enum):
@@ -19,39 +32,78 @@ class Role(Enum):
 
 class TidalResource(BaseModel):
     id: NonNegativeInt
-    name: str
 
     @classmethod
     def from_json(cls, json: dict) -> Self:
-        for k, parser in cls._json_map().items():
+        json = {from_camel(k): v for k, v in json.items()}
+        for k, parser in cls._parser_map().items():
             json[k] = parser(json)
+
+        for field, alias in cls._field_map().items():
+            json[field] = json[alias]
 
         return cls.model_validate(json)
 
     @classmethod
-    def _json_map(cls) -> dict[str, Parser]:
+    def _parser_map(cls) -> dict[str, Parser]:
+        return {}
+
+    @classmethod
+    def _field_map(cls) -> dict[str, str]:
         return {}
 
 
 class Artist(TidalResource):
-    roles: list[Role]
+    name: str
+    roles: list[Role] | None = None
     picture_uuid: str
-    popularity: int
+    popularity: int | None = None
 
     @classmethod
-    def _json_map(cls) -> dict[str, Parser]:
+    def _parser_map(cls) -> dict[str, Parser]:
         return {
-            "picture_uuid": lambda json: json["picture"],
-            "roles": lambda json: [Role.from_json(r) for r in json["artistRoles"]],
+            "roles": lambda json: [Role.from_json(r) for r in json["artist_roles"]]
+            if "artist_roles" in json
+            else None,
         }
 
     @classmethod
-    def from_json(cls, json: dict) -> Self:
-        map = {
-            "picture_uuid": lambda json: json["picture"],
-            "roles": lambda json: [Role.from_json(r) for r in json["artistRoles"]],
-        }
-        for k, parser in map.items():
-            json[k] = parser(json)
+    def _field_map(cls) -> dict[str, str]:
+        return {"picture_uuid": "picture"}
 
-        return cls.model_validate(json)
+
+class Quality(Enum):
+    HiRes = "HiRes"
+
+    @classmethod
+    def from_json(cls, json: str) -> Self:
+        return {"HI_RES": cls.HiRes}[json]
+
+
+class Album(TidalResource):
+    title: str
+    duration: timedelta
+    n_tracks: int
+    n_videos: int
+    n_volumes: int
+    release_date: date
+    cover_uuid: str
+    popularity: int
+    audio_quality: Quality
+    artist: Artist
+
+    @classmethod
+    def _field_map(cls) -> dict[str, str]:
+        return {
+            "cover_uuid": "cover",
+            "n_tracks": "number_of_tracks",
+            "n_videos": "number_of_videos",
+            "n_volumes": "number_of_volumes",
+        }
+
+    @classmethod
+    def _parser_map(cls) -> dict[str, Parser]:
+        return {
+            "artist": lambda json: Artist.from_json(json["artist"]),
+            "audio_quality": lambda json: Quality.from_json(json["audio_quality"]),
+        }

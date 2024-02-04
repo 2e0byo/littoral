@@ -1,3 +1,7 @@
+from datetime import date, timedelta
+
+from python_tidal_experimental.models import Album, Artist, Quality, Role
+
 album_response = {
     "id": 110827651,
     "title": '"Let\'s Rock"',
@@ -41,3 +45,26 @@ album_response = {
         }
     ],
 }
+
+
+def test_album_parsed_from_json():
+    assert (
+        Album.from_json(album_response).model_dump()
+        == Album(
+            id=110827651,
+            title='"Let\'s Rock"',
+            duration=timedelta(seconds=2316),
+            n_tracks=12,
+            n_videos=0,
+            n_volumes=1,
+            release_date=date(2019, 6, 28),
+            cover_uuid="c9ecf56d-cae2-4881-91e2-aadc186fd058",
+            popularity=39,
+            audio_quality=Quality.HiRes,
+            artist=Artist(
+                id=64643,
+                name="The Black Keys",
+                picture_uuid="0ed9f0cd-fce1-4894-baf4-d50c35fc7585",
+            ),
+        ).model_dump()
+    )
