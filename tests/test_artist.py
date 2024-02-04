@@ -1,5 +1,7 @@
 from pytest_cases import parametrize
+
 from python_tidal_experimental.models import Artist, Role
+from python_tidal_experimental.testing import ArtistFactory
 
 artist_response = {
     "id": 64643,
@@ -39,3 +41,10 @@ def test_artist_parsed_from_json():
 )
 def test_role_parsed_from_json(json, role):
     assert Role.from_json(json) is role
+
+
+def test_factory_produces_fake_objects():
+    artist = ArtistFactory().build(name="Arty")
+
+    assert isinstance(artist, Artist)
+    assert artist.name == "Arty"
