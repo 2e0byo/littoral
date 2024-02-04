@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta, timezone
 
 from python_tidal_experimental.models import Album, Artist, Quality
+from python_tidal_experimental.testing import AlbumFactory
 
 album_response = {
     "id": 110827651,
@@ -69,3 +70,10 @@ def test_album_parsed_from_json():
             ),
         ).model_dump()
     )
+
+
+def test_factory_produces_fake_objects():
+    album = AlbumFactory().build(title="given title")
+
+    assert isinstance(album, Album)
+    assert album.title == "given title"
