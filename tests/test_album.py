@@ -1,6 +1,8 @@
 from datetime import date, datetime, timedelta, timezone
 
-from python_tidal_experimental.models import Album, Artist, Quality
+from pytest_cases import parametrize
+
+from python_tidal_experimental.models import Album, Artist, ImageSize, Quality
 from python_tidal_experimental.testing import AlbumFactory
 
 album_response = {
@@ -70,6 +72,35 @@ def test_album_parsed_from_json():
             ),
         ).model_dump()
     )
+
+
+@parametrize(
+    "size, url",
+    [
+        (
+            ImageSize.Thumbnail,
+            "https://resources.tidal.com/images/aaa/bbb/ccc/ddd/80x80.jpg",
+        ),
+        (
+            ImageSize.Tiny,
+            "https://resources.tidal.com/images/aaa/bbb/ccc/ddd/160x160.jpg",
+        ),
+        (
+            ImageSize.Small,
+            "https://resources.tidal.com/images/aaa/bbb/ccc/ddd/320x320.jpg",
+        ),
+        (
+            ImageSize.Medium,
+            "https://resources.tidal.com/images/aaa/bbb/ccc/ddd/640x640.jpg",
+        ),
+        (
+            ImageSize.Large,
+            "https://resources.tidal.com/images/aaa/bbb/ccc/ddd/1280x1280.jpg",
+        ),
+    ],
+)
+def test_cover_urls_constructed_from_cover_uuid_and_size(size, url):
+    assert AlbumFactory().build(cover_uuid="aaa-bbb-ccc-ddd").image_url(size) == url
 
 
 def test_factory_produces_fake_objects():

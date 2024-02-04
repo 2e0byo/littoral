@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 from enum import Enum
-from typing import Any, Callable, Self
+from typing import Any, Callable, NamedTuple, NewType, Self
 
 from pydantic import BaseModel, NonNegativeInt
 
@@ -80,6 +80,22 @@ class Quality(Enum):
         return {"HI_RES": cls.HiRes}[json]
 
 
+URL = NewType("URL", str)
+
+
+class Dimensions(NamedTuple):
+    x: int
+    y: int
+
+
+class ImageSize(Enum):
+    Thumbnail = Dimensions(80, 80)
+    Tiny = Dimensions(160, 160)
+    Small = Dimensions(320, 320)
+    Medium = Dimensions(640, 640)
+    Large = Dimensions(1280, 1280)
+
+
 class Album(TidalResource):
     title: str
     duration: timedelta
@@ -109,3 +125,9 @@ class Album(TidalResource):
             "artist": lambda json: Artist.from_json(json["artist"]),
             "audio_quality": lambda json: Quality.from_json(json["audio_quality"]),
         }
+
+    def image_url(self, size: ImageSize = ImageSize.Small) -> URL:
+        x, y = size.value
+        return URL(
+            f"https://resources.tidal.com/images/{self.cover_uuid.replace('-','/')}/{x}x{y}.jpg"
+        )
