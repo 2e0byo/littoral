@@ -16,6 +16,7 @@ pytest = "7"
 pytest-sugar = "^1.0.0"
 pytest-cases = "^3.8.2"
 pytest-mock = "^3.12.0"
+polyfactory = "^2.14.1"
 
 [build-system]
 requires = ["poetry-core"]
