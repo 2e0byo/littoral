@@ -1,6 +1,6 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
-from python_tidal_experimental.models import Album, Artist, Quality, Role
+from python_tidal_experimental.models import Album, Artist, Quality
 
 album_response = {
     "id": 110827651,
@@ -17,7 +17,7 @@ album_response = {
     "numberOfVideos": 0,
     "numberOfVolumes": 1,
     "releaseDate": "2019-06-28",
-    "copyright": "© 2019 Nonesuch Records Inc. for the United States and WEA International Inc. for the world outside the United States.",
+    "copyright": "© 2019 Nonesuch Records Inc. for the United States and WEA International Inc. for the world outside the United States.",  # noqa: E501
     "type": "ALBUM",
     "version": None,
     "url": "http://www.tidal.com/album/110827651",
@@ -58,6 +58,7 @@ def test_album_parsed_from_json():
             n_videos=0,
             n_volumes=1,
             release_date=date(2019, 6, 28),
+            tidal_release_date=datetime(2019, 4, 25, 17, tzinfo=timezone.utc),
             cover_uuid="c9ecf56d-cae2-4881-91e2-aadc186fd058",
             popularity=39,
             audio_quality=Quality.HiRes,

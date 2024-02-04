@@ -1,8 +1,8 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from enum import Enum
-from typing import Annotated, Any, Callable, Self
+from typing import Any, Callable, Self
 
-from pydantic import BaseModel, ConfigDict, Field, NonNegativeInt, PrivateAttr
+from pydantic import BaseModel, NonNegativeInt
 
 Parser = Callable[[dict], Any]
 
@@ -87,6 +87,7 @@ class Album(TidalResource):
     n_videos: int
     n_volumes: int
     release_date: date
+    tidal_release_date: datetime
     cover_uuid: str
     popularity: int
     audio_quality: Quality
@@ -99,6 +100,7 @@ class Album(TidalResource):
             "n_tracks": "number_of_tracks",
             "n_videos": "number_of_videos",
             "n_volumes": "number_of_volumes",
+            "tidal_release_date": "stream_start_date",
         }
 
     @classmethod
