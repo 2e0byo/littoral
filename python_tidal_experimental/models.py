@@ -13,7 +13,7 @@ from pydantic import (
 from pydantic.alias_generators import to_camel
 from pydantic_core import CoreSchema, core_schema
 
-Parser = Callable[[dict], Any]
+URL = NewType("URL", str)
 
 
 class Role(Enum):
@@ -30,7 +30,7 @@ def _parse_role(x: Any) -> Role:
         return x
 
 
-ParsableRole = Annotated[Role, BeforeValidator(_parse_role)]
+_ParsableRole = Annotated[Role, BeforeValidator(_parse_role)]
 
 
 class TidalResource(BaseModel):
@@ -40,7 +40,7 @@ class TidalResource(BaseModel):
 
 class Artist(TidalResource):
     name: str
-    roles: list[ParsableRole] | None = Field(
+    roles: list[_ParsableRole] | None = Field(
         None, validation_alias=AliasPath("artistRoles")
     )
     picture_uuid: str = Field(alias="picture")
@@ -49,9 +49,6 @@ class Artist(TidalResource):
 
 class Quality(Enum):
     HiRes = "HI_RES"
-
-
-URL = NewType("URL", str)
 
 
 class Dimensions(NamedTuple):
