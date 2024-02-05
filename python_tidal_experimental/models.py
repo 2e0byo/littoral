@@ -1,22 +1,19 @@
 from datetime import date, datetime, timedelta
 from enum import Enum
-from typing import Any, Callable, NamedTuple, NewType, Self
+from typing import Annotated, Any, Callable, NamedTuple, NewType, Self
 
-from pydantic import BaseModel, NonNegativeInt
+from pydantic import (
+    AliasPath,
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    Field,
+    NonNegativeInt,
+)
+from pydantic.alias_generators import to_camel
+from pydantic_core import CoreSchema, core_schema
 
 Parser = Callable[[dict], Any]
-
-
-def from_camel(camel: str) -> str:
-    words = []
-    word_start = 0
-    for i, c in enumerate(camel):
-        if c.isupper():
-            words.append(camel[word_start:i].lower())
-            word_start = i
-
-    words.append(camel[word_start : i + 1].lower())
-    return "_".join(words)
 
 
 class Role(Enum):
@@ -26,22 +23,26 @@ class Role(Enum):
     Engineer = "Engineer"
 
     @classmethod
-    def from_json(cls, json: dict) -> Self:
-        return cls[json["category"]]
+    def _parse_str(cls, val: str) -> Self:
+        return cls[val]
+
+
+def _parse_role(x: Any) -> Role:
+    if isinstance(x, dict):
+        return Role[x["category"]]
+    else:
+        return x
+
+
+ParsableRole = Annotated[Role, BeforeValidator(_parse_role)]
 
 
 class TidalResource(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
     id: NonNegativeInt
 
     @classmethod
     def from_json(cls, json: dict) -> Self:
-        json = {from_camel(k): v for k, v in json.items()}
-        for k, parser in cls._parser_map().items():
-            json[k] = parser(json)
-
-        for field, alias in cls._field_map().items():
-            json[field] = json[alias]
-
         return cls.model_validate(json)
 
     @classmethod
@@ -55,29 +56,15 @@ class TidalResource(BaseModel):
 
 class Artist(TidalResource):
     name: str
-    roles: list[Role] | None = None
-    picture_uuid: str
+    roles: list[ParsableRole] | None = Field(
+        None, validation_alias=AliasPath("artistRoles")
+    )
+    picture_uuid: str = Field(alias="picture")
     popularity: int | None = None
-
-    @classmethod
-    def _parser_map(cls) -> dict[str, Parser]:
-        return {
-            "roles": lambda json: [Role.from_json(r) for r in json["artist_roles"]]
-            if "artist_roles" in json
-            else None,
-        }
-
-    @classmethod
-    def _field_map(cls) -> dict[str, str]:
-        return {"picture_uuid": "picture"}
 
 
 class Quality(Enum):
-    HiRes = "HiRes"
-
-    @classmethod
-    def from_json(cls, json: str) -> Self:
-        return {"HI_RES": cls.HiRes}[json]
+    HiRes = "HI_RES"
 
 
 URL = NewType("URL", str)
@@ -99,32 +86,15 @@ class ImageSize(Enum):
 class Album(TidalResource):
     title: str
     duration: timedelta
-    n_tracks: int
-    n_videos: int
-    n_volumes: int
+    n_tracks: int = Field(alias="numberOfTracks")
+    n_videos: int = Field(alias="numberOfVideos")
+    n_volumes: int = Field(alias="numberOfVolumes")
     release_date: date
-    tidal_release_date: datetime
-    cover_uuid: str
+    tidal_release_date: datetime = Field(alias="streamStartDate")
+    cover_uuid: str = Field(alias="cover")
     popularity: int
     audio_quality: Quality
     artist: Artist
-
-    @classmethod
-    def _field_map(cls) -> dict[str, str]:
-        return {
-            "cover_uuid": "cover",
-            "n_tracks": "number_of_tracks",
-            "n_videos": "number_of_videos",
-            "n_volumes": "number_of_volumes",
-            "tidal_release_date": "stream_start_date",
-        }
-
-    @classmethod
-    def _parser_map(cls) -> dict[str, Parser]:
-        return {
-            "artist": lambda json: Artist.from_json(json["artist"]),
-            "audio_quality": lambda json: Quality.from_json(json["audio_quality"]),
-        }
 
     def image_url(self, size: ImageSize = ImageSize.Small) -> URL:
         x, y = size.value

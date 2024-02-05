@@ -1,5 +1,4 @@
 from pytest_cases import parametrize
-
 from python_tidal_experimental.models import Artist, Role
 from python_tidal_experimental.testing import ArtistFactory
 
@@ -21,7 +20,7 @@ artist_response = {
 
 
 def test_artist_parsed_from_json():
-    assert Artist.from_json(artist_response) == Artist(
+    parsed = Artist(
         id=64643,
         name="The Black Keys",
         roles=[Role.Artist, Role.Songwriter, Role.Producer, Role.Engineer],
@@ -29,18 +28,7 @@ def test_artist_parsed_from_json():
         popularity=65,
     )
 
-
-@parametrize(
-    "json, role",
-    [
-        ({"categoryId": -1, "category": "Artist"}, Role.Artist),
-        ({"categoryId": 2, "category": "Songwriter"}, Role.Songwriter),
-        ({"categoryId": 1, "category": "Producer"}, Role.Producer),
-        ({"categoryId": 3, "category": "Engineer"}, Role.Engineer),
-    ],
-)
-def test_role_parsed_from_json(json, role):
-    assert Role.from_json(json) is role
+    assert Artist.from_json(artist_response).model_dump() == parsed.model_dump()
 
 
 def test_factory_produces_fake_objects():
