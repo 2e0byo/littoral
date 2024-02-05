@@ -4,6 +4,8 @@ from pytest_cases import parametrize
 from python_tidal_experimental.models import Artist, Role
 from python_tidal_experimental.testing import ArtistFactory
 
+from tests.utils import compare_models
+
 artist_response = json.dumps(
     {
         "id": 64643,
@@ -24,7 +26,7 @@ artist_response = json.dumps(
 
 
 def test_artist_parsed_from_json():
-    parsed = Artist(
+    target = Artist(
         id=64643,
         name="The Black Keys",
         roles=[Role.Artist, Role.Songwriter, Role.Producer, Role.Engineer],
@@ -32,9 +34,9 @@ def test_artist_parsed_from_json():
         popularity=65,
     )
 
-    assert (
-        Artist.model_validate_json(artist_response).model_dump() == parsed.model_dump()
-    )
+    parsed = Artist.model_validate_json(artist_response)
+
+    compare_models(parsed, target)
 
 
 def test_factory_produces_fake_objects():
