@@ -78,6 +78,7 @@ class Album(TidalResource):
     artist: Artist
     copyright: str
     explicit: bool
+    version: str | None = None
 
     def image_url(self, size: ImageSize = ImageSize.Small) -> URL:
         x, y = size.value
