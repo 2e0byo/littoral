@@ -49,6 +49,7 @@ class Artist(TidalResource):
 
 class Quality(Enum):
     HiRes = "HI_RES"
+    Lossless = "LOSSLESS"
 
 
 class Dimensions(NamedTuple):
@@ -79,6 +80,9 @@ class Album(TidalResource):
     copyright: str
     explicit: bool
     version: str | None = None
+    available: bool = Field(alias="streamReady")
+    video_cover_uuid: str | None = Field(None, alias="VideoCover")
+    universal_product_number: int | None = Field(None, alias="upc")
 
     def image_url(self, size: ImageSize = ImageSize.Small) -> URL:
         x, y = size.value
