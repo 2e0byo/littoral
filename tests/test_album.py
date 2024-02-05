@@ -5,8 +5,6 @@ from pytest_cases import parametrize
 from python_tidal_experimental.models import Album, Artist, ImageSize, Quality
 from python_tidal_experimental.testing import AlbumFactory
 
-from tests.utils import compare_models
-
 album_response = json.dumps(
     {
         "id": 110827651,
@@ -54,7 +52,7 @@ album_response = json.dumps(
 )
 
 
-def test_album_parsed_from_json():
+def test_album_parsed_from_json(compare_models):
     target = Album(
         id=110827651,
         title='"Let\'s Rock"',

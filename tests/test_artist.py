@@ -4,8 +4,6 @@ from pytest_cases import parametrize
 from python_tidal_experimental.models import Artist, Role
 from python_tidal_experimental.testing import ArtistFactory
 
-from tests.utils import compare_models
-
 artist_response = json.dumps(
     {
         "id": 64643,
@@ -25,7 +23,7 @@ artist_response = json.dumps(
 )
 
 
-def test_artist_parsed_from_json():
+def test_artist_parsed_from_json(compare_models):
     target = Artist(
         id=64643,
         name="The Black Keys",
