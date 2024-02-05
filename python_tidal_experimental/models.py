@@ -22,10 +22,6 @@ class Role(Enum):
     Producer = "Producer"
     Engineer = "Engineer"
 
-    @classmethod
-    def _parse_str(cls, val: str) -> Self:
-        return cls[val]
-
 
 def _parse_role(x: Any) -> Role:
     if isinstance(x, dict):
@@ -44,14 +40,6 @@ class TidalResource(BaseModel):
     @classmethod
     def from_json(cls, json: dict) -> Self:
         return cls.model_validate(json)
-
-    @classmethod
-    def _parser_map(cls) -> dict[str, Parser]:
-        return {}
-
-    @classmethod
-    def _field_map(cls) -> dict[str, str]:
-        return {}
 
 
 class Artist(TidalResource):
