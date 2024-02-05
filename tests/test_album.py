@@ -23,7 +23,7 @@ album_response = json.dumps(
         "numberOfVideos": 0,
         "numberOfVolumes": 1,
         "releaseDate": "2019-06-28",
-        "copyright": "© 2019 Nonesuch Records Inc. for the United States and WEA International Inc. for the world outside the United States.",  # noqa: E501
+        "copyright": "© 2019 Nonesuch Records",
         "type": "ALBUM",
         "version": None,
         "url": "http://www.tidal.com/album/110827651",
@@ -72,6 +72,8 @@ def test_album_parsed_from_json():
             name="The Black Keys",
             picture_uuid="0ed9f0cd-fce1-4894-baf4-d50c35fc7585",
         ),
+        copyright="© 2019 Nonesuch Records",
+        explicit=False,
     )
 
     parsed = Album.model_validate_json(album_response)
