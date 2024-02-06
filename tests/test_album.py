@@ -1,10 +1,10 @@
 import json
 from datetime import date, datetime, timedelta, timezone
 
-from pytest_cases import parametrize
 from littoral.models import Album, Artist, ImageSize, Quality, Session
 from littoral.request import Request
 from littoral.testing import AlbumFactory
+from pytest_cases import parametrize
 
 album_response = json.dumps(
     {
@@ -173,6 +173,7 @@ def test_track_requests_constructed_from_id_offset_and_limit(
     assert request.params == (
         expected.params | {"countryCode": "GB", "sessionId": "1234"}
     )
+    assert request.headers == session.headers()
 
 
 def test_factory_produces_fake_objects():

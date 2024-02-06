@@ -131,7 +131,7 @@ class AlbumWithSession(Album):
     def tracks_request(self, limit: int | None = None, offset: int = 0) -> Request:
         return Request(
             method="GET",
-            url=f"{self.urls.api_v1}/albums/{self.id}/tracks",
+            url=f"{self.urls.api_v1}/albums/{self.id}/tracks",  # type: ignore
             params=(
                 {
                     "limit": limit,
@@ -139,4 +139,5 @@ class AlbumWithSession(Album):
                 }
                 | self.session.params()
             ),
+            headers=self.session.headers(),
         )
