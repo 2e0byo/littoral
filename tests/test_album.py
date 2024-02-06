@@ -2,7 +2,8 @@ import json
 from datetime import date, datetime, timedelta, timezone
 
 from pytest_cases import parametrize
-from python_tidal_experimental.models import Album, Artist, ImageSize, Quality
+from python_tidal_experimental.models import Album, Artist, ImageSize, Quality, Session
+from python_tidal_experimental.request import Request
 from python_tidal_experimental.testing import AlbumFactory
 
 album_response = json.dumps(
@@ -112,6 +113,66 @@ def test_album_parsed_from_json(compare_models):
 )
 def test_cover_urls_constructed_from_cover_uuid_and_size(size, url):
     assert AlbumFactory().build(cover_uuid="aaa-bbb-ccc-ddd").image_url(size) == url
+
+
+@parametrize(
+    "offset, limit, expected",
+    [
+        (
+            0,
+            10,
+            Request(
+                url="https://api.tidal.com/v1/albums/123/tracks",  # type: ignore
+                params={"limit": 10, "offset": 0},
+            ),
+        ),
+        (
+            1,
+            10,
+            Request(
+                url="https://api.tidal.com/v1/albums/123/tracks",  # type: ignore
+                params={"limit": 10, "offset": 1},
+            ),
+        ),
+        (
+            1,
+            100,
+            Request(
+                url="https://api.tidal.com/v1/albums/123/tracks",  # type: ignore
+                params={"limit": 100, "offset": 1},
+            ),
+        ),
+        (
+            0,
+            None,
+            Request(
+                url="https://api.tidal.com/v1/albums/123/tracks",  # type: ignore
+                params={"limit": None, "offset": 0},
+            ),
+        ),
+    ],
+)
+def test_track_requests_constructed_from_id_offset_and_limit(
+    offset, limit, expected: Request
+):
+    session = Session(
+        country="GB",
+        id=1234,
+        refresh_token="refresh-token",
+        access_token="access-token",
+    )
+
+    request = (
+        AlbumFactory()
+        .build(id=123)
+        .with_session(session)
+        .tracks_request(offset=offset, limit=limit)
+    )
+
+    assert request.url == expected.url
+    assert request.params == (
+        expected.params | {"countryCode": "GB", "sessionId": "1234"}
+    )
 
 
 def test_factory_produces_fake_objects():

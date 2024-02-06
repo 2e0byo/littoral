@@ -106,6 +106,37 @@ class Album(TidalResource):
 
     def image_url(self, size: ImageSize = ImageSize.Small) -> URL:
         x, y = size.value
-        return URL(
-            f"https://resources.tidal.com/images/{self.cover_uuid.replace('-','/')}/{x}x{y}.jpg"
+        return URL(f"{self.urls.image}/{self.cover_uuid.replace('-','/')}/{x}x{y}.jpg")
+
+    def with_session(self, session: "Session") -> "AlbumWithSession":
+        return AlbumWithSession.model_validate(self.model_dump() | {"session": session})
+
+
+class Session(BaseModel):
+    country: CountryAlpha2
+    id: int
+    access_token: str
+    refresh_token: str
+
+    def params(self) -> dict[str, str]:
+        return {"countryCode": self.country, "sessionId": str(self.id)}
+
+    def headers(self) -> dict[str, str]:
+        return {"authorization": self.access_token}
+
+
+class AlbumWithSession(Album):
+    session: Session
+
+    def tracks_request(self, limit: int | None = None, offset: int = 0) -> Request:
+        return Request(
+            method="GET",
+            url=f"{self.urls.api_v1}/albums/{self.id}/tracks",
+            params=(
+                {
+                    "limit": limit,
+                    "offset": offset,
+                }
+                | self.session.params()
+            ),
         )
