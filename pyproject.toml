@@ -18,6 +18,12 @@ pytest-cases = "^3.8.2"
 pytest-mock = "^3.12.0"
 polyfactory = "^2.14.1"
 pytest-cov = "^4.1.0"
+pydantic-extra-types = "^2.5.0"
+pycountry = "^23.12.11"
+
+
+[tool.poetry.group.httpx.dependencies]
+httpx = "^0.26.0"
 
 [build-system]
 requires = ["poetry-core"]
