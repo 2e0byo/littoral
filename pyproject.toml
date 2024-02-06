@@ -54,3 +54,6 @@ lint.select = [
     "Q", # Quotes
     "DTZ", # Naive datetime
 ]
+
+[tool.pytest.ini_options]
+addopts = "--cov=littoral --cov-branch --cov-report=term-missing --cov-report=html"
