@@ -1,6 +1,5 @@
 import json
 
-from pytest_cases import parametrize
 from python_tidal_experimental.models import Artist, Role
 from python_tidal_experimental.testing import ArtistFactory
 
