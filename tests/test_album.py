@@ -2,9 +2,9 @@ import json
 from datetime import date, datetime, timedelta, timezone
 
 from pytest_cases import parametrize
-from python_tidal_experimental.models import Album, Artist, ImageSize, Quality, Session
-from python_tidal_experimental.request import Request
-from python_tidal_experimental.testing import AlbumFactory
+from littoral.models import Album, Artist, ImageSize, Quality, Session
+from littoral.request import Request
+from littoral.testing import AlbumFactory
 
 album_response = json.dumps(
     {

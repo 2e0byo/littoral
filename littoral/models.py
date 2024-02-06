@@ -14,7 +14,7 @@ from pydantic import (
 from pydantic.alias_generators import to_camel
 from pydantic_extra_types.country import CountryAlpha2
 
-from python_tidal_experimental.request import URL, Request
+from littoral.request import URL, Request
 
 
 class Urls(BaseModel):

@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "python-tidal-experimental"
+name = "littoral"
 version = "0.1.0"
-description = "Experimental python tidal api"
+description = "Experimental zero-IO python tidal api"
 authors = ["John Maximilian <2e0byo@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "python_tidal_experimental"}]
+packages = [{include = "littoral"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"

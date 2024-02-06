@@ -1,7 +1,7 @@
 import json
 
-from python_tidal_experimental.models import Artist, Role
-from python_tidal_experimental.testing import ArtistFactory
+from littoral.models import Artist, Role
+from littoral.testing import ArtistFactory
 
 artist_response = json.dumps(
     {

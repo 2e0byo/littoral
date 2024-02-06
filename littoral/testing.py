@@ -1,6 +1,6 @@
 from polyfactory.factories.pydantic_factory import ModelFactory
 
-from python_tidal_experimental.models import Album, Artist, Session, Urls
+from littoral.models import Album, Artist, Session, Urls
 
 
 class CommonMixin:
