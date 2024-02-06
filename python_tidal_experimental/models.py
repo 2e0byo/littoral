@@ -1,9 +1,10 @@
 from datetime import date, datetime, timedelta
 from enum import Enum
-from typing import Annotated, Any, Callable, NamedTuple, NewType, Self
+from typing import Annotated, Any, NamedTuple, Self
 
 from pydantic import (
     AliasPath,
+    AnyHttpUrl,
     BaseModel,
     BeforeValidator,
     ConfigDict,
@@ -11,9 +12,33 @@ from pydantic import (
     NonNegativeInt,
 )
 from pydantic.alias_generators import to_camel
-from pydantic_core import CoreSchema, core_schema
+from pydantic_extra_types.country import CountryAlpha2
 
-URL = NewType("URL", str)
+from python_tidal_experimental.request import URL, Request
+
+
+class Urls(BaseModel):
+    api_v1: AnyHttpUrl
+    api_v2: AnyHttpUrl
+    oauth2: AnyHttpUrl
+    image: AnyHttpUrl
+    video: AnyHttpUrl
+
+    @classmethod
+    def default(cls) -> Self:
+        return cls(
+            api_v1="https://api.tidal.com/v1",  # type: ignore
+            api_v2="https://api.tidal.com/v2",  # type: ignore
+            oauth2="https://auth.tidal.com/v1/oauth2/token",  # type: ignore
+            image="https://resources.tidal.com/images",  # type: ignore
+            video="https://resources.tidal.com/videos",  # type: ignore
+        )
+
+
+class TidalResource(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+    id: NonNegativeInt
+    urls: Urls = Field(default_factory=Urls.default)
 
 
 class Role(Enum):
@@ -31,11 +56,6 @@ def _parse_role(x: Any) -> Role:
 
 
 _ParsableRole = Annotated[Role, BeforeValidator(_parse_role)]
-
-
-class TidalResource(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
-    id: NonNegativeInt
 
 
 class Artist(TidalResource):
