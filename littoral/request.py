@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Literal, NewType
 
 from pydantic import AnyHttpUrl, BaseModel, Field
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: nocover
     import httpx
 
 HTTPMethod = Literal["GET", "PUT", "POST", "HEAD", "DELETE", "UPDATE"]
