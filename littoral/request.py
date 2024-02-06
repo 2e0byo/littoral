@@ -1,6 +1,5 @@
 """A very basic request/response library to avoid depending on any implementation."""
 from typing import TYPE_CHECKING, Any, Literal, NewType
-from urllib.parse import urlencode, urljoin
 
 from pydantic import AnyHttpUrl, BaseModel, Field
 
@@ -20,9 +19,6 @@ class Request(BaseModel):
     url: AnyHttpUrl
     params: dict[str, Any]
     headers: dict[str, str] = Field(default_factory=dict)
-
-    def to_url(self) -> URL:
-        return URL(urljoin(str(self.url), urlencode(self.params)))
 
     def to_httpx(self) -> "httpx.Request":
         import httpx
