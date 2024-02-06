@@ -17,8 +17,9 @@ class Request(BaseModel):
 
     method: HTTPMethod = "GET"
     url: AnyHttpUrl
-    params: dict[str, Any]
+    params: dict[str, Any] = Field(default_factory=dict)
     headers: dict[str, str] = Field(default_factory=dict)
+    data: dict[str, Any] | None = None
 
     def to_httpx(self) -> "httpx.Request":
         import httpx
@@ -28,6 +29,7 @@ class Request(BaseModel):
             url=str(self.url),
             params=self.params,
             headers=self.headers,
+            data=self.data,
         )
 
 
