@@ -40,7 +40,7 @@ plugins = [
 ]
 
 [tool.ruff]
-select = [
+lint.select = [
     "E", # Pycodestyle
     "F", # Pyflakes
     "T20", # Print
