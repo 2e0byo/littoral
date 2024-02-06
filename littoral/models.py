@@ -16,6 +16,8 @@ from pydantic_extra_types.country import CountryAlpha2
 
 from littoral.request import URL, Request
 
+MODEL_CONFIG = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
 
 class Urls(BaseModel):
     api_v1: AnyHttpUrl
@@ -36,7 +38,7 @@ class Urls(BaseModel):
 
 
 class TidalResource(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+    model_config = MODEL_CONFIG
     id: NonNegativeInt
     urls: Urls = Field(default_factory=Urls.default)
 
