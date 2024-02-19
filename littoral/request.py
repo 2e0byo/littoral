@@ -1,7 +1,7 @@
 """A very basic request/response library to avoid depending on any implementation."""
-from typing import TYPE_CHECKING, Any, Literal, NewType
+from typing import TYPE_CHECKING, Any, Literal, NewType, Self
 
-from pydantic import AnyHttpUrl, BaseModel, Field
+from pydantic import AnyHttpUrl, BaseModel, Field, field_validator, validator
 
 if TYPE_CHECKING:  # pragma: nocover
     import httpx
@@ -35,3 +35,22 @@ class Request(BaseModel):
 
 class Response(BaseModel):
     """An http response."""
+
+    status_code: int
+    url: AnyHttpUrl
+    data: bytes
+    headers: dict[str, str]
+
+    @field_validator("headers", mode="before")
+    @classmethod
+    def cast_val_to_str(cls, val: dict[str, Any]) -> dict[str, str]:
+        return {k: str(v) for k, v in val.items()}
+
+    @classmethod
+    def from_httpx(cls, httpx_response: "httpx.Response") -> Self:
+        return cls(
+            status_code=httpx_response.status_code,
+            url=str(httpx_response.url),  # type: ignore
+            headers=httpx_response.headers,  # type: ignore
+            data=httpx_response.read(),
+        )
