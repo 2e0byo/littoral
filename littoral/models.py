@@ -1,40 +1,16 @@
 from datetime import date, datetime, timedelta
 from enum import Enum
-from typing import Annotated, Any, NamedTuple, Self
+from typing import Annotated, Any, NamedTuple
 
-from pydantic import (
-    AliasPath,
-    AnyHttpUrl,
-    BaseModel,
-    BeforeValidator,
-    ConfigDict,
-    Field,
-    NonNegativeInt,
-)
+from pydantic import (AliasPath, BaseModel, BeforeValidator, ConfigDict, Field,
+                      NonNegativeInt)
 from pydantic.alias_generators import to_camel
 from pydantic_extra_types.country import CountryAlpha2
 
+from littoral.config import Urls
 from littoral.request import URL, Request
 
 MODEL_CONFIG = ConfigDict(populate_by_name=True, alias_generator=to_camel)
-
-
-class Urls(BaseModel):
-    api_v1: AnyHttpUrl
-    api_v2: AnyHttpUrl
-    oauth2: AnyHttpUrl
-    image: AnyHttpUrl
-    video: AnyHttpUrl
-
-    @classmethod
-    def default(cls) -> Self:
-        return cls(
-            api_v1="https://api.tidal.com/v1",  # type: ignore
-            api_v2="https://api.tidal.com/v2",  # type: ignore
-            oauth2="https://auth.tidal.com/v1/oauth2/token",  # type: ignore
-            image="https://resources.tidal.com/images",  # type: ignore
-            video="https://resources.tidal.com/videos",  # type: ignore
-        )
 
 
 class TidalResource(BaseModel):
