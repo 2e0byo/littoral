@@ -1,34 +1,27 @@
-[tool.poetry]
+[project]
 name = "littoral"
 version = "0.1.0"
 description = "Experimental zero-IO python tidal api"
-authors = ["John Maximilian <2e0byo@gmail.com>"]
-license = "MIT"
+authors = [
+    {name = "John Maximilian", email = "2e0byo@gmail.com"},
+]
+dependencies = [
+    "pydantic>=2.6.1",
+    "pycountry>=23.12.11",
+    "pydantic-extra-types>=2.5.0",
+]
+requires-python = ">=3.11,<4.0"
 readme = "README.md"
-packages = [{include = "littoral"}]
+license = {text = "MIT"}
 
-[tool.poetry.dependencies]
-python = "^3.11"
-pydantic = "^2.6.0"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "7"
-pytest-sugar = "^1.0.0"
-pytest-cases = "^3.8.2"
-pytest-mock = "^3.12.0"
-polyfactory = "^2.14.1"
-pytest-cov = "^4.1.0"
-pydantic-extra-types = "^2.5.0"
-pycountry = "^23.12.11"
-
-
-[tool.poetry.group.httpx.dependencies]
-httpx = "^0.26.0"
+[project.optional-dependencies]
+testing = [
+    "polyfactory>=2.14.1",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
 [tool.docformatter]
 recursive = true
@@ -57,3 +50,25 @@ lint.select = [
 
 [tool.pytest.ini_options]
 addopts = "--cov=littoral --cov-branch --cov-report=term-missing --cov-report=html"
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest==7",
+    "pytest-sugar>=1.0.0",
+    "pytest-cases>=3.8.2",
+    "pytest-mock>=3.12.0",
+    "polyfactory<3.0.0,>=2.14.1",
+    "pytest-cov>=4.1.0",
+    "pydantic-extra-types<3.0.0,>=2.5.0",
+    "pycountry<24.0.0,>=23.12.11",
+]
+httpx = [
+    "httpx>=0.26.0",
+]
+
+[tool.pdm.build]
+includes = ["littoral"]
+
