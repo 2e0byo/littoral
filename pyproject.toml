@@ -72,3 +72,6 @@ httpx = [
 [tool.pdm.build]
 includes = ["littoral"]
 
+
+[tool.isort]
+profile = "black"
