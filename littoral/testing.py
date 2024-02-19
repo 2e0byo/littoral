@@ -1,5 +1,6 @@
 from polyfactory.factories.pydantic_factory import ModelFactory
 
+from littoral.auth import SimpleOauthFlow
 from littoral.models import Album, Artist, Session, Urls
 
 
@@ -17,3 +18,7 @@ class ArtistFactory(ModelFactory, CommonMixin):
 
 class SessionFactory(ModelFactory, CommonMixin):
     __model__ = Session
+
+
+class OauthFlowFactory(ModelFactory):
+    __model__ = SimpleOauthFlow

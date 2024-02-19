@@ -90,18 +90,6 @@ class Album(TidalResource):
         return AlbumWithSession.model_validate(self.model_dump() | {"session": session})
 
 
-class SessionBuilder(BaseModel):
-    client_id: str
-    scopes: tuple[str, ...] = ("r_usr", "w_usr", "w_sub")
-
-    def auth_request(self) -> Request:
-        return Request(
-            method="POST",
-            url="https://auth.tidal.com/v1/oauth2/device_authorization",
-            data={"client_id": self.client_id, "scope": " ".join(self.scopes)},
-        )
-
-
 class Session(BaseModel):
     country: CountryAlpha2
     id: int

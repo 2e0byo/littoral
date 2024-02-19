@@ -1,10 +1,11 @@
 import json
 from datetime import date, datetime, timedelta, timezone
 
+from pytest_cases import parametrize
+
 from littoral.models import Album, Artist, ImageSize, Quality, Session
 from littoral.request import Request
 from littoral.testing import AlbumFactory
-from pytest_cases import parametrize
 
 album_response = json.dumps(
     {

@@ -1,7 +1,7 @@
 """A very basic request/response library to avoid depending on any implementation."""
 from typing import TYPE_CHECKING, Any, Literal, NewType, Self
 
-from pydantic import AnyHttpUrl, BaseModel, Field, field_validator, validator
+from pydantic import AnyHttpUrl, BaseModel, Field, field_validator
 
 if TYPE_CHECKING:  # pragma: nocover
     import httpx
