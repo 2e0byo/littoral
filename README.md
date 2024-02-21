@@ -1,1 +1,2 @@
-# Littoral: a zero-IO library for Tidal
+# Littoral: an experimental zero-IO tidal library for python
+
