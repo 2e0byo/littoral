@@ -16,7 +16,7 @@ class ArtistFactory(ModelFactory, CommonMixin):
     __model__ = Artist
 
 
-class SessionFactory(ModelFactory, CommonMixin):
+class ApiSessionFactory(ModelFactory, CommonMixin):
     __model__ = ApiSession
 
 

@@ -1,10 +1,14 @@
 """A very basic request/response library to avoid depending on any implementation."""
-from typing import TYPE_CHECKING, Any, Literal, NewType, Self
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, Generic, Literal, NewType, Self, TypeVar
 
 from pydantic import AnyHttpUrl, BaseModel, Field, field_validator
 
 if TYPE_CHECKING:  # pragma: nocover
     import httpx
+
+    from littoral.models import ApiSession
 
 HTTPMethod = Literal["GET", "PUT", "POST", "HEAD", "DELETE", "UPDATE"]
 
@@ -54,3 +58,25 @@ class Response(BaseModel):
             headers=httpx_response.headers,  # type: ignore
             data=httpx_response.read(),
         )
+
+
+_T = TypeVar("_T", bound=BaseModel)
+
+
+class RequestBuilder(Generic[_T]):
+    def __init__(self, model: _T, request: Request) -> None:
+        self._model = model
+        self._request = request
+
+    def build(self, session: "ApiSession") -> Request:
+        """Build this request with the given token."""
+        return self._request.model_copy(
+            update={
+                "headers": session.params() | self._request.params,
+                "headers": session.headers() | self._request.headers,
+            }
+        )
+
+    def parse(self, response: Response) -> _T:
+        """Parse the server's response to the correct model."""
+        return self._model.model_validate_json(response.data)
