@@ -2,8 +2,14 @@ from datetime import date, datetime, timedelta
 from enum import Enum
 from typing import Annotated, Any, NamedTuple
 
-from pydantic import (AliasPath, BaseModel, BeforeValidator, ConfigDict, Field,
-                      NonNegativeInt)
+from pydantic import (
+    AliasPath,
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    Field,
+    NonNegativeInt,
+)
 from pydantic.alias_generators import to_camel
 from pydantic_extra_types.country import CountryAlpha2
 
@@ -86,11 +92,11 @@ class Album(TidalResource):
         x, y = size.value
         return URL(f"{self.urls.image}/{self.cover_uuid.replace('-','/')}/{x}x{y}.jpg")
 
-    def with_session(self, session: "Session") -> "AlbumWithSession":
+    def with_session(self, session: "ApiSession") -> "AlbumWithSession":
         return AlbumWithSession.model_validate(self.model_dump() | {"session": session})
 
 
-class Session(BaseModel):
+class ApiSession(BaseModel):
     country: CountryAlpha2
     id: int
     access_token: str
@@ -104,7 +110,7 @@ class Session(BaseModel):
 
 
 class AlbumWithSession(Album):
-    session: Session
+    session: ApiSession
 
     def tracks_request(self, limit: int | None = None, offset: int = 0) -> Request:
         return Request(

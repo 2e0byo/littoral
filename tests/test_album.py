@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta, timezone
 
 from pytest_cases import parametrize
 
-from littoral.models import Album, Artist, ImageSize, Quality, Session
+from littoral.models import Album, ApiSession, Artist, ImageSize, Quality
 from littoral.request import Request
 from littoral.testing import AlbumFactory
 
@@ -156,7 +156,7 @@ def test_cover_urls_constructed_from_cover_uuid_and_size(size, url):
 def test_track_requests_constructed_from_id_offset_and_limit(
     offset, limit, expected: Request
 ):
-    session = Session(
+    session = ApiSession(
         country="GB",
         id=1234,
         refresh_token="refresh-token",
