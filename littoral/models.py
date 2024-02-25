@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 from enum import Enum
-from typing import Annotated, Any, NamedTuple
+from typing import Annotated, Any, NamedTuple, Sequence
 
 from pydantic import (
     AliasPath,
@@ -9,6 +9,7 @@ from pydantic import (
     ConfigDict,
     Field,
     NonNegativeInt,
+    TypeAdapter,
 )
 from pydantic.alias_generators import to_camel
 from pydantic_extra_types.country import CountryAlpha2
@@ -69,6 +70,14 @@ class ImageSize(Enum):
     Large = Dimensions(1280, 1280)
 
 
+class Track(TidalResource):
+    ...
+
+
+class Video(TidalResource):
+    ...
+
+
 class Album(TidalResource):
     title: str
     duration: timedelta
@@ -102,10 +111,25 @@ class Album(TidalResource):
 
     def tracks(self, limit: int | None = None, offset: int = 0) -> RequestBuilder:
         return RequestBuilder(
-            Album,
+            TypeAdapter(list[Track]),
             Request(
                 method="GET",
                 url=f"{self.urls.api_v1}/albums/{self.id}/tracks",  # type: ignore
+                params=(
+                    {
+                        "limit": limit,
+                        "offset": offset,
+                    }
+                ),
+            ),
+        )
+
+    def items(self, limit: int | None = None, offset: int = 0) -> RequestBuilder:
+        return RequestBuilder(
+            TypeAdapter(Sequence[Track | Video]),
+            Request(
+                method="GET",
+                url=f"{self.urls.api_v1}/albums/{self.id}/items",  # type: ignore
                 params=(
                     {
                         "limit": limit,

@@ -1,10 +1,10 @@
 from typing import Callable
 
-from pydantic import BaseModel
+from pydantic import BaseModel, TypeAdapter
 from pytest_cases import fixture
 
 
-def _compare_models(a: BaseModel, b: BaseModel):
+def _compare_models(a: BaseModel, b: BaseModel) -> None:
     """Compare models as dicts for better diffs."""
     assert a.model_dump() == b.model_dump()
 
@@ -12,3 +12,13 @@ def _compare_models(a: BaseModel, b: BaseModel):
 CompareModels = Callable[[BaseModel, BaseModel], None]
 
 compare_models = fixture(lambda: _compare_models)
+
+
+def _check_models_list(type_adapter: TypeAdapter, expected: str) -> None:
+    """Check the parser for a list of models has the expected type."""
+    assert type_adapter.validator.title == expected
+
+
+check_models_list = fixture(lambda: _check_models_list)
+
+CheckModelsList = Callable[[TypeAdapter, str], None]

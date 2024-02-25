@@ -1,7 +1,7 @@
 """A very basic request/response library to avoid depending on any implementation."""
 from typing import TYPE_CHECKING, Any, Generic, Literal, NewType, Self, TypeVar
 
-from pydantic import AnyHttpUrl, BaseModel, Field, field_validator
+from pydantic import AnyHttpUrl, BaseModel, Field, TypeAdapter, field_validator
 
 if TYPE_CHECKING:  # pragma: nocover
     import httpx
@@ -58,7 +58,7 @@ class Response(BaseModel):
         )
 
 
-_T = TypeVar("_T", bound=BaseModel)
+_T = TypeVar("_T", BaseModel, TypeAdapter)
 
 
 class RequestBuilder(Generic[_T]):

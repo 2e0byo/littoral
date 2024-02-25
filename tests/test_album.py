@@ -1,10 +1,10 @@
 from pytest_cases import parametrize, parametrize_with_cases
 
-from littoral.models import Album, ApiSession, ImageSize
+from littoral.models import Album, ImageSize
 from littoral.request import Request
 from littoral.testing import AlbumFactory, ApiSessionFactory
 from tests.cases_album import AlbumCase
-from tests.conftest import CompareModels
+from tests.conftest import CheckModelsList, CompareModels
 
 
 @parametrize_with_cases("test_case", cases=".cases_album")
@@ -92,19 +92,13 @@ def test_cover_request_constructed_from_cover_uuid_and_size(size, url):
     ],
 )
 def test_track_requests_constructed_from_id_offset_and_limit(
-    offset, limit, expected: Request
+    offset, limit, expected: Request, check_models_list: CheckModelsList
 ):
-    session = ApiSession(
-        country="GB",
-        id=1234,
-        refresh_token="refresh-token",
-        access_token="access-token",
-    )
+    session = ApiSessionFactory().build()
 
-    request = AlbumFactory().build(id=123).tracks(limit, offset).build(session)
+    request_builder = AlbumFactory().build(id=123).tracks(limit, offset)
+    request = request_builder.build(session)
 
+    check_models_list(request_builder._model, "list[Track]")
     assert request.url == expected.url
-    assert request.params == (
-        expected.params | {"countryCode": "GB", "sessionId": "1234"}
-    )
-    assert request.headers == session.headers()
+    assert request.params.items() >= {"limit": limit, "offset": offset}.items()
