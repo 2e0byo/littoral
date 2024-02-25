@@ -47,7 +47,7 @@ class Artist(TidalResource):
     roles: list[_ParsableRole] | None = Field(
         None, validation_alias=AliasPath("artistRoles")
     )
-    picture_uuid: str = Field(alias="picture")
+    picture_uuid: str | None = Field(alias="picture")
     popularity: int | None = None
 
 
