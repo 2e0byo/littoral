@@ -92,6 +92,14 @@ class Album(TidalResource):
         x, y = size.value
         return URL(f"{self.urls.image}/{self.cover_uuid.replace('-','/')}/{x}x{y}.jpg")
 
+    def image(self, size: ImageSize = ImageSize.Small) -> RequestBuilder:
+        x, y = size.value
+        url = f"{self.urls.image}/{self.cover_uuid.replace('-','/')}/{x}x{y}.jpg"
+        return RequestBuilder(
+            Album,
+            Request(method="GET", url=url),
+        )
+
     def tracks(self, limit: int | None = None, offset: int = 0) -> RequestBuilder:
         return RequestBuilder(
             Album,

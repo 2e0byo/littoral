@@ -2,7 +2,7 @@ from pytest_cases import parametrize, parametrize_with_cases
 
 from littoral.models import Album, ApiSession, ImageSize
 from littoral.request import Request
-from littoral.testing import AlbumFactory
+from littoral.testing import AlbumFactory, ApiSessionFactory
 from tests.cases_album import AlbumCase
 from tests.conftest import CompareModels
 
@@ -44,8 +44,14 @@ def test_factory_produces_fake_objects():
         ),
     ],
 )
-def test_cover_urls_constructed_from_cover_uuid_and_size(size, url):
-    assert AlbumFactory().build(cover_uuid="aaa-bbb-ccc-ddd").image_url(size) == url
+def test_cover_request_constructed_from_cover_uuid_and_size(size, url):
+    session = ApiSessionFactory().build()
+    request = (
+        AlbumFactory().build(cover_uuid="aaa-bbb-ccc-ddd").image(size).build(session)
+    )
+
+    assert request.method == "GET"
+    assert str(request.url) == url
 
 
 @parametrize(
