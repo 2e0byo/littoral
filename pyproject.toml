@@ -64,6 +64,7 @@ dev = [
     "pytest-cov>=4.1.0",
     "pydantic-extra-types<3.0.0,>=2.5.0",
     "pycountry<24.0.0,>=23.12.11",
+    "rich>=13.7.0",
 ]
 httpx = [
     "httpx>=0.26.0",
