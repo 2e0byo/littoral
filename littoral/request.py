@@ -62,7 +62,7 @@ _T = TypeVar("_T", bound=BaseModel)
 
 
 class RequestBuilder(Generic[_T]):
-    def __init__(self, model: _T, request: Request) -> None:
+    def __init__(self, model: type[_T], request: Request) -> None:
         self._model = model
         self._request = request
 
