@@ -1,6 +1,4 @@
 """A very basic request/response library to avoid depending on any implementation."""
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Generic, Literal, NewType, Self, TypeVar
 
 from pydantic import AnyHttpUrl, BaseModel, Field, field_validator
@@ -72,7 +70,7 @@ class RequestBuilder(Generic[_T]):
         """Build this request with the given token."""
         return self._request.model_copy(
             update={
-                "headers": session.params() | self._request.params,
+                "params": session.params() | self._request.params,
                 "headers": session.headers() | self._request.headers,
             }
         )
