@@ -2,7 +2,7 @@ from polyfactory.factories.pydantic_factory import ModelFactory
 
 from littoral.auth import SimpleOauthFlow
 from littoral.models import Album, ApiSession, Artist, Urls
-from littoral.request import Request
+from littoral.request import Request, Response
 
 
 class CommonMixin:
@@ -31,3 +31,7 @@ class OauthFlowFactory(ModelFactory):
 
 class RequestFactory(ModelFactory):
     __model__ = Request
+
+
+class ResponseFactory(ModelFactory):
+    __model__ = Response

@@ -1,6 +1,9 @@
 import httpx
+from pydantic import BaseModel
 
-from littoral.request import Request, Response
+from littoral.models import ApiSession
+from littoral.request import Request, RequestBuilder, Response
+from littoral.testing import RequestFactory, ResponseFactory
 
 
 class TestRequest:
@@ -40,3 +43,37 @@ class TestResponse:
         )
 
         compare_models(expected, Response.from_httpx(httpx_response))
+
+
+class TestRequestBuilder:
+    def test_builds_request_from_api_session(self, mocker, compare_models):
+        request = Request(
+            method="GET",
+            url="http://example.com",
+            params={"foo": "bar"},
+            headers={"bar": "baz"},
+        )
+        session = ApiSession(
+            country="GB", id=1234, access_token="access", refresh_token="refresh"
+        )
+        model = mocker.Mock(spec=BaseModel)
+        builder = RequestBuilder(model, request)
+
+        built = builder.build(session)
+
+        expected = Request(
+            method="GET",
+            url="http://example.com",
+            params={"foo": "bar", "countryCode": "GB", "sessionId": "1234"},
+            headers={"bar": "baz", "authorization": "access"},
+        )
+        compare_models(built, expected)
+
+    def test_parse_defers_to_model(self, mocker):
+        model = mocker.Mock(spec=BaseModel)
+        response = ResponseFactory().build(data=b"foo bar")
+        builder = RequestBuilder(model, RequestFactory().build())
+
+        builder.parse(response)
+
+        builder._model.model_validate_json.assert_called_once_with(b"foo bar")
