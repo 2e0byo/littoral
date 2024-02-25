@@ -6,6 +6,20 @@ from littoral.request import Request, RequestBuilder, Response
 from littoral.testing import RequestFactory, ResponseFactory
 
 
+def test_request_factory_produces_fake_objects():
+    request = RequestFactory().build(url="http://example.com/foo")
+
+    assert isinstance(request, Request)
+    assert str(request.url) == "http://example.com/foo"
+
+
+def test_response_factory_produces_fake_objects():
+    response = ResponseFactory().build(data=b"foo bar baz")
+
+    assert isinstance(response, Response)
+    assert response.data == b"foo bar baz"
+
+
 class TestRequest:
     def test_castable_to_httpx_request(self):
         constructed = httpx.Request(
