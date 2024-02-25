@@ -14,7 +14,7 @@ from pydantic.alias_generators import to_camel
 from pydantic_extra_types.country import CountryAlpha2
 
 from littoral.config import Urls
-from littoral.request import URL, Request
+from littoral.request import URL, Request, RequestBuilder
 
 MODEL_CONFIG = ConfigDict(populate_by_name=True, alias_generator=to_camel)
 
@@ -92,8 +92,20 @@ class Album(TidalResource):
         x, y = size.value
         return URL(f"{self.urls.image}/{self.cover_uuid.replace('-','/')}/{x}x{y}.jpg")
 
-    def with_session(self, session: "ApiSession") -> "AlbumWithSession":
-        return AlbumWithSession.model_validate(self.model_dump() | {"session": session})
+    def tracks(self, limit: int | None = None, offset: int = 0) -> RequestBuilder:
+        return RequestBuilder(
+            Album,
+            Request(
+                method="GET",
+                url=f"{self.urls.api_v1}/albums/{self.id}/tracks",  # type: ignore
+                params=(
+                    {
+                        "limit": limit,
+                        "offset": offset,
+                    }
+                ),
+            ),
+        )
 
 
 class ApiSession(BaseModel):
@@ -111,17 +123,3 @@ class ApiSession(BaseModel):
 
 class AlbumWithSession(Album):
     session: ApiSession
-
-    def tracks_request(self, limit: int | None = None, offset: int = 0) -> Request:
-        return Request(
-            method="GET",
-            url=f"{self.urls.api_v1}/albums/{self.id}/tracks",  # type: ignore
-            params=(
-                {
-                    "limit": limit,
-                    "offset": offset,
-                }
-                | self.session.params()
-            ),
-            headers=self.session.headers(),
-        )

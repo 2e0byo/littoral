@@ -95,12 +95,7 @@ def test_track_requests_constructed_from_id_offset_and_limit(
         access_token="access-token",
     )
 
-    request = (
-        AlbumFactory()
-        .build(id=123)
-        .with_session(session)
-        .tracks_request(offset=offset, limit=limit)
-    )
+    request = AlbumFactory().build(id=123).tracks(limit, offset).build(session)
 
     assert request.url == expected.url
     assert request.params == (
