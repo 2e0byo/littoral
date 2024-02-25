@@ -2,6 +2,7 @@ from polyfactory.factories.pydantic_factory import ModelFactory
 
 from littoral.auth import SimpleOauthFlow
 from littoral.models import Album, ApiSession, Artist, Urls
+from littoral.request import Request
 
 
 class CommonMixin:
@@ -19,6 +20,14 @@ class ArtistFactory(ModelFactory, CommonMixin):
 class ApiSessionFactory(ModelFactory, CommonMixin):
     __model__ = ApiSession
 
+    @classmethod
+    def country(cls) -> str:
+        return cls.__random__.choice(["GB", "US"])
+
 
 class OauthFlowFactory(ModelFactory):
     __model__ = SimpleOauthFlow
+
+
+class RequestFactory(ModelFactory):
+    __model__ = Request
