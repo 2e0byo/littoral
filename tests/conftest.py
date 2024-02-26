@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Callable
 
 from pydantic import BaseModel, TypeAdapter
@@ -22,3 +23,10 @@ def _check_models_list(type_adapter: TypeAdapter, expected: str) -> None:
 check_models_list = fixture(lambda: _check_models_list)
 
 CheckModelsList = Callable[[TypeAdapter, str], None]
+
+
+@fixture
+def freeze_time(mocker) -> datetime:
+    now = datetime.now(timezone.utc)
+    mocker.patch("littoral.auth.models.datetime", **{"now.return_value": now})
+    return now

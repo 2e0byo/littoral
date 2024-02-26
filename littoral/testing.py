@@ -1,7 +1,14 @@
 from polyfactory.factories.pydantic_factory import ModelFactory
 
-from littoral.auth import SimpleOauthFlow
-from littoral.models import Album, ApiSession, Artist, Urls
+from littoral.auth.client_oauth2 import SimpleOauthFlow
+from littoral.auth.models import (
+    AccessToken,
+    ApiSession,
+    ClientConfig,
+    RefreshToken,
+    Session,
+)
+from littoral.models import Album, Artist, Urls
 from littoral.request import Request, Response
 
 
@@ -17,12 +24,30 @@ class ArtistFactory(ModelFactory, CommonMixin):
     __model__ = Artist
 
 
-class ApiSessionFactory(ModelFactory, CommonMixin):
-    __model__ = ApiSession
+class SessionFactory(ModelFactory):
+    __model__ = Session
 
     @classmethod
     def country(cls) -> str:
         return cls.__random__.choice(["GB", "US"])
+
+
+class RefreshTokenFactory(ModelFactory):
+    __model__ = RefreshToken
+
+
+class AccessTokenFactory(ModelFactory):
+    __model__ = AccessToken
+
+
+class ClientConfigFactory(ModelFactory):
+    __model__ = ClientConfig
+
+
+class ApiSessionFactory(ModelFactory, CommonMixin):
+    __model__ = ApiSession
+
+    session = SessionFactory
 
 
 class OauthFlowFactory(ModelFactory):

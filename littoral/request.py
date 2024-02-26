@@ -6,7 +6,7 @@ from pydantic import AnyHttpUrl, BaseModel, Field, TypeAdapter, field_validator
 if TYPE_CHECKING:  # pragma: nocover
     import httpx
 
-    from littoral.models import ApiSession
+    from littoral.auth.models import ApiSession
 
 HTTPMethod = Literal["GET", "PUT", "POST", "HEAD", "DELETE", "UPDATE"]
 
@@ -58,11 +58,12 @@ class Response(BaseModel):
         )
 
 
-_T = TypeVar("_T", BaseModel, TypeAdapter)
+# TODO work out how to type this
+ModelT = TypeVar("ModelT", type[BaseModel], TypeAdapter)
 
 
-class RequestBuilder(Generic[_T]):
-    def __init__(self, model: type[_T], request: Request) -> None:
+class RequestBuilder(Generic[ModelT]):
+    def __init__(self, model: ModelT, request: Request) -> None:
         self._model = model
         self._request = request
 
@@ -75,6 +76,17 @@ class RequestBuilder(Generic[_T]):
             }
         )
 
-    def parse(self, response: Response) -> _T:
+    def parse(self, response: Response) -> ModelT:
         """Parse the server's response to the correct model."""
-        return self._model.model_validate_json(response.data)
+        return (
+            self._model.validate_json(response.data)
+            if isinstance(self._model, TypeAdapter)
+            else self._model.model_validate_json(response.data)
+        )
+
+
+class StatelessRequestBuilder(RequestBuilder, Generic[ModelT]):
+    """A request builder whose request is already built."""
+
+    def build(self, *_) -> Request:
+        return self._request

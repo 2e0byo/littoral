@@ -1,9 +1,14 @@
 import httpx
 from pydantic import BaseModel
 
-from littoral.models import ApiSession
+from littoral.auth.models import Session
 from littoral.request import Request, RequestBuilder, Response
-from littoral.testing import RequestFactory, ResponseFactory
+from littoral.testing import (
+    AccessTokenFactory,
+    ApiSessionFactory,
+    RequestFactory,
+    ResponseFactory,
+)
 
 
 def test_request_factory_produces_fake_objects():
@@ -67,8 +72,11 @@ class TestRequestBuilder:
             params={"foo": "bar"},
             headers={"bar": "baz"},
         )
-        session = ApiSession(
-            country="GB", id=1234, access_token="access", refresh_token="refresh"
+        session = ApiSessionFactory().build(
+            session=Session(countryCode="GB", sessionId="1234"),
+            access_token=AccessTokenFactory.build(
+                access_token="access", token_type="Bearer"
+            ),
         )
         model = mocker.Mock(spec=BaseModel)
         builder = RequestBuilder(model, request)
@@ -79,7 +87,7 @@ class TestRequestBuilder:
             method="GET",
             url="http://example.com",
             params={"foo": "bar", "countryCode": "GB", "sessionId": "1234"},
-            headers={"bar": "baz", "authorization": "access"},
+            headers={"authorization": "Bearer access", "bar": "baz"},
         )
         compare_models(built, expected)
 

@@ -2,26 +2,14 @@ from datetime import date, datetime, timedelta
 from enum import Enum
 from typing import Annotated, Any, NamedTuple, Sequence
 
-from pydantic import (
-    AliasPath,
-    BaseModel,
-    BeforeValidator,
-    ConfigDict,
-    Field,
-    NonNegativeInt,
-    TypeAdapter,
-)
-from pydantic.alias_generators import to_camel
-from pydantic_extra_types.country import CountryAlpha2
+from pydantic import AliasPath, BeforeValidator, Field, NonNegativeInt, TypeAdapter
 
+from littoral.base import CamelModel
 from littoral.config import Urls
 from littoral.request import URL, Request, RequestBuilder
 
-MODEL_CONFIG = ConfigDict(populate_by_name=True, alias_generator=to_camel)
 
-
-class TidalResource(BaseModel):
-    model_config = MODEL_CONFIG
+class TidalResource(CamelModel):
     id: NonNegativeInt
     urls: Urls = Field(default_factory=Urls.default)
 
@@ -140,18 +128,7 @@ class Album(TidalResource):
         )
 
 
-class ApiSession(BaseModel):
-    country: CountryAlpha2
-    id: int
-    access_token: str
-    refresh_token: str
-
-    def params(self) -> dict[str, str]:
-        return {"countryCode": self.country, "sessionId": str(self.id)}
-
-    def headers(self) -> dict[str, str]:
-        return {"authorization": self.access_token}
-
-
-class AlbumWithSession(Album):
-    session: ApiSession
+class User(CamelModel):
+    user_id: int
+    email: str
+    # Tidal has other fields, but I doubt we want them.

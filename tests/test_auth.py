@@ -1,14 +1,15 @@
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
-from littoral.auth import SimpleOauthFlow
+from littoral.auth.client_oauth2 import SimpleOauthFlow
 from littoral.testing import OauthFlowFactory
+from tests.conftest import CompareModels
 
 
 class TestOauthFlow:
-    def test_parsed_from_json(self, compare_models, mocker):
-        now = datetime.now(timezone.utc)
-        mocker.patch("littoral.auth.datetime", **{"now.return_value": now})
+    def test_parsed_from_json(
+        self, compare_models: CompareModels, freeze_time: datetime
+    ):
         data = json.dumps(
             {
                 "deviceCode": "8a409920-e440-4a0f-9f53-d2d6fe166765",
@@ -24,7 +25,7 @@ class TestOauthFlow:
             user_code="JOASE",
             verification_url="https://link.tidal.com/JOASE",
             interval=2,
-            expires_at=now + timedelta(seconds=300),
+            expires_at=freeze_time + timedelta(seconds=300),
         )
 
         parsed = SimpleOauthFlow.model_validate_json(data)
