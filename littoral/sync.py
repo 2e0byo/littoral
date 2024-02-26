@@ -8,11 +8,11 @@ from typing_extensions import Self
 import littoral.auth.client_oauth2 as oauth2
 from littoral.auth.models import AccessToken, ApiSession, ClientConfig, RefreshToken
 from littoral.request import (
-    ModelT,
     Request,
     RequestBuilder,
     Response,
     StatelessRequestBuilder,
+    T,
 )
 
 logger = get_logger()
@@ -23,11 +23,11 @@ class HttpSession:
     client: Client = field(default_factory=Client)
     max_attempts: int = 3
 
-    def send(self, request_builder: StatelessRequestBuilder[ModelT]) -> ModelT:
+    def send(self, request_builder: StatelessRequestBuilder[T]) -> T:
         request = request_builder.build()
         return self.send_request(request, request_builder)
 
-    def send_request(self, request: Request, builder: RequestBuilder[ModelT]) -> ModelT:
+    def send_request(self, request: Request, builder: RequestBuilder[T]) -> T:
         for attempt in range(self.max_attempts):
             logger.debug("Sending request", attempt=attempt, request=request)
             resp = self.client.send(request.to_httpx())
@@ -95,7 +95,7 @@ class Session:
         access_token = self.http_session.send(self.api_session.new_access_token())
         self.api_session.access_token = access_token
 
-    def send(self, request_builder: RequestBuilder[ModelT]) -> ModelT:
+    def send(self, request_builder: RequestBuilder[T]) -> T:
         request = request_builder.build(self.api_session)
         if self.api_session.access_token.is_expired():
             self._refresh_access_token()

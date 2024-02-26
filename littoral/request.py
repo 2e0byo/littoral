@@ -1,5 +1,14 @@
 """A very basic request/response library to avoid depending on any implementation."""
-from typing import TYPE_CHECKING, Any, Generic, Literal, NewType, Self, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Generic,
+    Literal,
+    NewType,
+    Self,
+    TypeVar,
+)
 
 from pydantic import AnyHttpUrl, BaseModel, Field, TypeAdapter, field_validator
 
@@ -58,14 +67,28 @@ class Response(BaseModel):
         )
 
 
-# TODO work out how to type this
-ModelT = TypeVar("ModelT", type[BaseModel], TypeAdapter)
+T = TypeVar("T")
+ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
-class RequestBuilder(Generic[ModelT]):
-    def __init__(self, model: ModelT, request: Request) -> None:
-        self._model = model
+class RequestBuilder(Generic[T]):
+    def __init__(self, parser: Callable[[bytes], T], request: Request) -> None:
+        self._parser = parser
         self._request = request
+
+    @classmethod
+    def from_model(
+        cls, model: type[ModelT], request: Request
+    ) -> "RequestBuilder[ModelT]":
+        """Convenience method to construct from a pydantic model."""
+        return RequestBuilder(model.model_validate_json, request)
+
+    @classmethod
+    def from_adapter(
+        cls, adapter: TypeAdapter[T], request: Request
+    ) -> "RequestBuilder[T]":
+        """Convenience method to construct from a type adapter."""
+        return cls(adapter.validate_json, request)
 
     def build(self, session: "ApiSession") -> Request:
         """Build this request with the given token."""
@@ -76,17 +99,32 @@ class RequestBuilder(Generic[ModelT]):
             }
         )
 
-    def parse(self, response: Response) -> ModelT:
+    def parse(self, response: Response) -> T:
         """Parse the server's response to the correct model."""
+        return self._parser(response.data)
         return (
-            self._model.validate_json(response.data)
-            if isinstance(self._model, TypeAdapter)
-            else self._model.model_validate_json(response.data)
+            self._parser.validate_json(response.data)
+            if isinstance(self._parser, TypeAdapter)
+            else self._parser.model_validate_json(response.data)
         )
 
 
-class StatelessRequestBuilder(RequestBuilder, Generic[ModelT]):
+class StatelessRequestBuilder(RequestBuilder, Generic[T]):
     """A request builder whose request is already built."""
+
+    @classmethod
+    def from_model(
+        cls, model: type[ModelT], request: Request
+    ) -> "StatelessRequestBuilder[ModelT]":
+        """Convenience method to construct from a pydantic model."""
+        return StatelessRequestBuilder(model.model_validate_json, request)
+
+    @classmethod
+    def from_adapter(
+        cls, adapter: TypeAdapter[T], request: Request
+    ) -> "StatelessRequestBuilder[T]":
+        """Convenience method to construct from a type adapter."""
+        return StatelessRequestBuilder(adapter.validate_json, request)
 
     def build(self, *_) -> Request:
         return self._request

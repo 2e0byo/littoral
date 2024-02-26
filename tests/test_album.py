@@ -99,6 +99,5 @@ def test_track_requests_constructed_from_id_offset_and_limit(
     request_builder = AlbumFactory().build(id=123).tracks(limit, offset)
     request = request_builder.build(session)
 
-    check_models_list(request_builder._model, "list[Track]")
     assert request.url == expected.url
     assert request.params.items() >= {"limit": limit, "offset": offset}.items()

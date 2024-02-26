@@ -61,7 +61,7 @@ class SimpleOauthFlow(CamelModel):
     def user(self, client: ClientConfig) -> StatelessRequestBuilder:
         """A request which will return the token if the user has approved the
         request."""
-        return StatelessRequestBuilder(
+        return StatelessRequestBuilder.from_model(
             model=AuthenticatedUser,
             request=Request(
                 method="POST",
@@ -77,7 +77,7 @@ class SimpleOauthFlow(CamelModel):
 
 
 def auth_request(client: ClientConfig) -> StatelessRequestBuilder[SimpleOauthFlow]:
-    return StatelessRequestBuilder(
+    return StatelessRequestBuilder.from_model(
         model=SimpleOauthFlow,
         request=Request(
             method="POST",
@@ -101,7 +101,7 @@ class AuthenticatedUser(BaseModel):
     urls: Urls = Field(default_factory=Urls.default)
 
     def session(self) -> StatelessRequestBuilder:
-        return StatelessRequestBuilder(
+        return StatelessRequestBuilder.from_model(
             model=Session,
             request=Request(
                 method="GET",

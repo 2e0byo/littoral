@@ -92,13 +92,12 @@ class Album(TidalResource):
     def image(self, size: ImageSize = ImageSize.Small) -> RequestBuilder:
         x, y = size.value
         url = f"{self.urls.image}/{self.cover_uuid.replace('-','/')}/{x}x{y}.jpg"
-        return RequestBuilder(
-            Album,
-            Request(method="GET", url=url),
-        )
+        return RequestBuilder.from_model(Album, Request(method="GET", url=url))
 
-    def tracks(self, limit: int | None = None, offset: int = 0) -> RequestBuilder:
-        return RequestBuilder(
+    def tracks(
+        self, limit: int | None = None, offset: int = 0
+    ) -> RequestBuilder[list[Track]]:
+        return RequestBuilder.from_adapter(
             TypeAdapter(list[Track]),
             Request(
                 method="GET",
@@ -112,9 +111,11 @@ class Album(TidalResource):
             ),
         )
 
-    def items(self, limit: int | None = None, offset: int = 0) -> RequestBuilder:
-        return RequestBuilder(
-            TypeAdapter(Sequence[Track | Video]),
+    def items(
+        self, limit: int | None = None, offset: int = 0
+    ) -> RequestBuilder[Sequence[Track | Video]]:
+        return RequestBuilder.from_adapter(
+            TypeAdapter(list[Track | Video]),
             Request(
                 method="GET",
                 url=f"{self.urls.api_v1}/albums/{self.id}/items",  # type: ignore

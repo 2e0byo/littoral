@@ -29,11 +29,26 @@ class ClientConfig(CamelModel):
     scopes: str = "r_usr w_usr w_sub"
 
 
+class AccessToken(BaseModel):
+    access_token: str
+    expires_at: ExpiryTime = Field(alias="expires_in")
+    token_type: str
+    scope: str
+
+    def headers(self) -> dict[str, str]:
+        return {"authorization": f"{self.token_type} {self.access_token}"}
+
+    def is_expired(self) -> bool:
+        return datetime.now(timezone.utc) >= self.expires_at
+
+
 class RefreshToken(BaseModel):
     refresh_token: str
 
-    def access_token(self, client: ClientConfig) -> StatelessRequestBuilder:
-        return StatelessRequestBuilder(
+    def access_token(
+        self, client: ClientConfig
+    ) -> StatelessRequestBuilder[AccessToken]:
+        return StatelessRequestBuilder.from_model(
             model=AccessToken,
             request=Request(
                 method="POST",
@@ -46,19 +61,6 @@ class RefreshToken(BaseModel):
                 },
             ),
         )
-
-
-class AccessToken(BaseModel):
-    access_token: str
-    expires_at: ExpiryTime = Field(alias="expires_in")
-    token_type: str
-    scope: str
-
-    def headers(self) -> dict[str, str]:
-        return {"authorization": f"{self.token_type} {self.access_token}"}
-
-    def is_expired(self) -> bool:
-        return datetime.now(timezone.utc) >= self.expires_at
 
 
 class Session(CamelModel):

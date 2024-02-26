@@ -79,7 +79,7 @@ class TestRequestBuilder:
             ),
         )
         model = mocker.Mock(spec=BaseModel)
-        builder = RequestBuilder(model, request)
+        builder = RequestBuilder.from_model(model, request)
 
         built = builder.build(session)
 
@@ -91,11 +91,11 @@ class TestRequestBuilder:
         )
         compare_models(built, expected)
 
-    def test_parse_defers_to_model(self, mocker):
+    def test_parse_defers_to_model_when_built_with_model(self, mocker):
         model = mocker.Mock(spec=BaseModel)
         response = ResponseFactory().build(data=b"foo bar")
-        builder = RequestBuilder(model, RequestFactory().build())
+        builder = RequestBuilder.from_model(model, RequestFactory().build())
 
         builder.parse(response)
 
-        builder._model.model_validate_json.assert_called_once_with(b"foo bar")
+        model.model_validate_json.assert_called_once_with(b"foo bar")
