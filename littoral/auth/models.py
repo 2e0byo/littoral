@@ -5,6 +5,7 @@ from pydantic import AwareDatetime, BaseModel, BeforeValidator, Field
 from pydantic_extra_types.country import CountryAlpha2
 
 from littoral.base import CamelModel
+from littoral.config import URLS
 from littoral.request import Request, StatelessRequestBuilder
 
 # local alias so we can mock datetime
@@ -52,7 +53,7 @@ class RefreshToken(BaseModel):
             model=AccessToken,
             request=Request(
                 method="POST",
-                url="https://auth.tidal.com/v1/oauth2/token",
+                url=URLS.oauth2,
                 data={
                     "grant_type": "refresh_token",
                     "refresh_token": self.refresh_token,
