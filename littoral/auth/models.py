@@ -26,7 +26,7 @@ ExpiryTime = Annotated[datetime, BeforeValidator(to_absolute)]
 class ClientConfig(CamelModel):
     client_id: str
     client_secret: str
-    scopes: str = "r_usr w_usr w_sub"
+    scope: str = "r_usr w_usr w_sub"
 
 
 class AccessToken(BaseModel):

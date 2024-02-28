@@ -19,3 +19,6 @@ class Urls(BaseModel):
             image="https://resources.tidal.com/images",  # type: ignore
             video="https://resources.tidal.com/videos",  # type: ignore
         )
+
+
+URLS = Urls.default()

@@ -1,6 +1,6 @@
 from polyfactory.factories.pydantic_factory import ModelFactory
 
-from littoral.auth.client_oauth2 import SimpleOauthFlow
+from littoral.auth.client_oauth2 import AuthenticatedUser, SimpleOauthFlow
 from littoral.auth.models import (
     AccessToken,
     ApiSession,
@@ -52,6 +52,10 @@ class ApiSessionFactory(ModelFactory, CommonMixin):
 
 class OauthFlowFactory(ModelFactory):
     __model__ = SimpleOauthFlow
+
+
+class AuthenticatedUserFactory(ModelFactory):
+    __model__ = AuthenticatedUser
 
 
 class RequestFactory(ModelFactory):

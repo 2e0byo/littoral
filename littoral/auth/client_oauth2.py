@@ -5,7 +5,7 @@ from pydantic import AnyUrl, BaseModel, Field, field_validator
 
 from littoral.auth.models import ClientConfig, ExpiryTime, Session
 from littoral.base import CamelModel
-from littoral.config import Urls
+from littoral.config import URLS
 from littoral.models import User
 from littoral.request import Request, StatelessRequestBuilder
 
@@ -51,7 +51,6 @@ class SimpleOauthFlow(CamelModel):
     verification_url: AnyUrl = Field(alias="verificationUriComplete")
     expires_at: ExpiryTime = Field(alias="expiresIn")
     interval: timedelta
-    urls: Urls = Field(default_factory=Urls.default)
 
     @field_validator("verification_url", mode="before")
     @classmethod
@@ -69,9 +68,8 @@ class SimpleOauthFlow(CamelModel):
                 | {
                     "device_code": self.device_code,
                     "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
-                    "scope": client.scopes,
                 },
-                url=self.urls.oauth2,
+                url="https://auth.tidal.com/v1/oauth2/token",
             ),
         )
 
@@ -84,7 +82,7 @@ def auth_request(client: ClientConfig) -> StatelessRequestBuilder[SimpleOauthFlo
             url="https://auth.tidal.com/v1/oauth2/device_authorization",
             data={
                 "client_id": client.client_id,
-                "scope": client.scopes,
+                "scope": client.scope,
             },
         ),
     )
@@ -98,14 +96,13 @@ class AuthenticatedUser(BaseModel):
     access_token: str
     refresh_token: str
     expires_at: ExpiryTime = Field(alias="expires_in")
-    urls: Urls = Field(default_factory=Urls.default)
 
     def session(self) -> StatelessRequestBuilder:
         return StatelessRequestBuilder.from_model(
             model=Session,
             request=Request(
                 method="GET",
-                url=f"{self.urls.api_v1}/sessions",
+                url=f"{URLS.api_v1}/sessions",
                 headers={"Authorization": f"Bearer {self.access_token}"},
             ),
         )
