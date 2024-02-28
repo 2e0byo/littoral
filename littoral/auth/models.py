@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
-from pydantic import BaseModel, BeforeValidator, Field
+from pydantic import AwareDatetime, BaseModel, BeforeValidator, Field
 from pydantic_extra_types.country import CountryAlpha2
 
 from littoral.base import CamelModel
@@ -20,7 +20,7 @@ def to_absolute(v: float | str | datetime) -> datetime | str:
         return datetime.now(timezone.utc) + timedelta(seconds=v)
 
 
-ExpiryTime = Annotated[datetime, BeforeValidator(to_absolute)]
+ExpiryTime = Annotated[AwareDatetime, BeforeValidator(to_absolute)]
 
 
 class ClientConfig(CamelModel):

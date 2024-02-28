@@ -1,4 +1,6 @@
 # ruff: noqa: E501
+from datetime import datetime, timedelta
+
 from pytest_cases import parametrize_with_cases
 
 from littoral.auth.models import AccessToken, ApiSession, RefreshToken, Session
@@ -40,6 +42,13 @@ class TestAccessToken:
         fake = AccessTokenFactory().build()
 
         assert isinstance(fake, AccessToken)
+
+    def test_is_expired_compares_compares_time_with_now(self, freeze_time: datetime):
+        fake = AccessTokenFactory().build(expires_in=freeze_time + timedelta(minutes=1))
+        assert not fake.is_expired()
+
+        fake = AccessTokenFactory().build(expires_in=freeze_time)
+        assert fake.is_expired()
 
 
 class TestRefreshToken:
